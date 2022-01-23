@@ -12,13 +12,13 @@ const StatsController = require("../controllers/StatsController");
 //User
 routes.route("/login").post(UserController.login);
 
-//routes
-//  .route("/users")
-//  .post(UserController.create)
-//  .delete(UserController.delete)
-//  .get(UserController.findAll);
+routes
+  .route("/users")
+  .post(UserController.create)
+  .delete(UserController.delete)
+  .get(UserController.findAll);
 
-//routes.route("/users/:user_id").delete(UserController.delete);
+routes.route("/users/:user_id").delete(UserController.delete);
 
 //Group
 routes.get("/groups", verifyToken, GroupController.findAll);
