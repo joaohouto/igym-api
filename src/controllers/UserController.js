@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const mailer = require("../config/mailer");
 
 module.exports = {
   async create(req, res) {
@@ -124,6 +126,94 @@ module.exports = {
         auth: false,
         message: "Senha inválida!",
       });
+    } catch (err) {
+      return res.status(500).send({
+        message: err.message || "Algo deu errado!",
+      });
+    }
+  },
+
+  async forgotPassword(req, res) {
+    const { email } = req.body;
+
+    try {
+      const user = await User.findOne({ email });
+
+      if (!user)
+        return res.status(404).json({
+          message: "Usuário não encontrado.",
+        });
+
+      const token = crypto.randomBytes(20).toString("hex");
+
+      const now = new Date();
+      now.setHours(now.getHours() + 1);
+
+      await User.findByIdAndUpdate(user.id, {
+        $set: {
+          passwordResetToken: token,
+          passwordResetExpires: now,
+        },
+      });
+
+      mailer.sendMail(
+        {
+          to: email,
+          subject: "Redefinição de senha - iGym",
+          from: "igym@joaocouto.com",
+          template: "auth/forgot_password",
+          context: { token },
+        },
+        (err) => {
+          if (err) {
+            return res.status(400).send({
+              message: "Não foi possível enviar o email de redefinição.",
+            });
+          } else {
+            return res.status(200).send({
+              message: "Email de redefinição enviado.",
+            });
+          }
+        }
+      );
+    } catch (err) {
+      return res.status(500).send({
+        message: err.message || "Algo deu errado!",
+      });
+    }
+  },
+
+  async resetPassword(req, res) {
+    const { token, password } = req.body;
+
+    try {
+      const user = await User.findOne({ token }).select(
+        "+passwordResetToken passwordResetExpires"
+      );
+
+      if (!user)
+        return res.status(404).json({
+          message: "Usuário não encontrado.",
+        });
+
+      if (token !== user.passwordResetToken)
+        return res.status(404).json({
+          message: "Token inválido.",
+        });
+
+      const now = new Date();
+
+      if (now > user.passwordResetExpires) {
+        return res.status(404).json({
+          message: "Token expirado, gere um novo.",
+        });
+      }
+
+      user.password = password;
+
+      await user.save();
+
+      return res.send();
     } catch (err) {
       return res.status(500).send({
         message: err.message || "Algo deu errado!",

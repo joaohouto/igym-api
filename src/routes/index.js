@@ -11,14 +11,16 @@ const StatsController = require("../controllers/StatsController");
 
 //User
 routes.route("/login").post(UserController.login);
+routes.route("/forgot_password").post(UserController.forgotPassword);
+routes.route("/reset_password").post(UserController.resetPassword);
 
-routes
+/* routes
   .route("/users")
   .post(UserController.create)
   .delete(UserController.delete)
   .get(UserController.findAll);
 
-routes.route("/users/:user_id").delete(UserController.delete);
+routes.route("/users/:user_id").delete(UserController.delete); */
 
 //Group
 routes.get("/groups", verifyToken, GroupController.findAll);
