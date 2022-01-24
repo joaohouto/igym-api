@@ -160,7 +160,7 @@ module.exports = {
         {
           to: email,
           subject: "Redefinição de senha - iGym",
-          from: "igym@joaocouto.com",
+          from: "iGym",
           template: "auth/forgot_password",
           context: { token },
         },
