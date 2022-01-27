@@ -11,6 +11,7 @@ module.exports = {
 
     try {
       await user.save();
+
       return res.json({ user });
     } catch (err) {
       return res.status(500).send({ error: err.message });
@@ -160,7 +161,7 @@ module.exports = {
         {
           to: email,
           subject: "Redefinição de senha - iGym",
-          from: "iGym",
+          from: "João do iGym <joaocouto.dev@gmail.com>",
           template: "auth/forgot_password",
           context: { token },
         },
