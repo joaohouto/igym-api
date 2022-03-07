@@ -160,8 +160,8 @@ module.exports = {
       mailer.sendMail(
         {
           to: email,
-          subject: "Redefinição de senha - iGym",
-          from: "João - Suporte iGym <joaocouto.dev@gmail.com>",
+          subject: "Redefinição de senha",
+          from: "João Couto - iGym <contato@joaocouto.com>",
           template: "auth/forgot_password",
           context: { token },
         },
