@@ -161,12 +161,14 @@ module.exports = {
         {
           to: email,
           subject: "Redefinição de senha - iGym",
-          from: "João do iGym <joaocouto.dev@gmail.com>",
+          from: "João - Suporte iGym <joaocouto.dev@gmail.com>",
           template: "auth/forgot_password",
           context: { token },
         },
         (err) => {
           if (err) {
+            console.log(err);
+
             return res.status(400).send({
               message: "Não foi possível enviar o email de redefinição.",
             });

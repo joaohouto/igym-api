@@ -13,7 +13,7 @@ module.exports = {
 
     jwt.verify(token, process.env.SECRET, (error, decoded) => {
       if (error) {
-        return res.status(500).json({
+        return res.status(401).json({
           auth: false,
           message: "Token de acesso inválido!",
         });
