@@ -19,9 +19,9 @@ module.exports = {
         student.groups.map((group) => {
           if (group_id) {
             if (group_id == group.group_id._id)
-              estimated += group.group_id.price * (1 - group.discount / 100);
+              estimated += group.group_id.price - group.discount;
           } else {
-            estimated += group.group_id.price * (1 - group.discount / 100);
+            estimated += group.group_id.price - group.discount;
           }
         });
       });
