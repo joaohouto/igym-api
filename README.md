@@ -16,7 +16,9 @@
 ## Specs
 
 - Authentication with JSONWebToken
-- Role-Based Access Control
+- Password Recovery
+- Refresh Token #TODO
+- Role-Based Access Control #TODO
 
 ### Technologies
 

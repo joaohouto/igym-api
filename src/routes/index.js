@@ -13,6 +13,7 @@ const StatsController = require("../controllers/StatsController");
 routes.route("/login").post(UserController.login);
 routes.route("/forgot_password").post(UserController.forgotPassword);
 routes.route("/reset_password").post(UserController.resetPassword);
+routes.route("/refresh").post(UserController.refreshToken);
 
 /* routes
   .route("/users")

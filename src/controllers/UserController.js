@@ -1,7 +1,10 @@
 const User = require("../models/User");
+const RefreshToken = require("../models/RefreshToken");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const mailer = require("../config/mailer");
+const RefreshTokenController = require("../controllers/RefreshTokenController");
+const dayjs = require("dayjs");
 
 module.exports = {
   async create(req, res) {
@@ -109,8 +112,12 @@ module.exports = {
         const { _id } = user;
 
         const token = jwt.sign({ _id }, process.env.SECRET, {
-          expiresIn: "1d",
+          expiresIn: "7d",
         });
+
+        await RefreshToken.deleteMany({ userId: _id });
+
+        const refreshToken = await RefreshTokenController.generate(_id);
 
         return res.json({
           user: {
@@ -120,6 +127,7 @@ module.exports = {
             createdAt: user.createdAt,
           },
           token,
+          refreshToken,
         });
       }
 
@@ -131,6 +139,42 @@ module.exports = {
       return res.status(500).send({
         message: err.message || "Algo deu errado!",
       });
+    }
+  },
+
+  async refreshToken(req, res) {
+    try {
+      const refreshToken = await RefreshToken.findById(req.query.token);
+
+      if (!refreshToken) {
+        return res.status(401).send({ message: "Refresh token inválido!" });
+      }
+
+      // generate new access token
+      const token = jwt.sign({ _id: refreshToken.userId }, process.env.SECRET, {
+        expiresIn: "7d",
+      });
+
+      // very if current refresh token is expired
+      const refreshTokenExpired = dayjs().isAfter(
+        dayjs.unix(refreshToken.expiresIn)
+      );
+
+      if (refreshTokenExpired) {
+        await RefreshToken.deleteMany({ userId: refreshToken.userId });
+
+        const newRefreshToken = await RefreshTokenController.generate(
+          refreshToken.userId
+        );
+
+        return res.json({ newToken: token, newRefreshToken });
+      }
+
+      return res.json({ newToken: token });
+    } catch (err) {
+      return res
+        .status(500)
+        .send({ message: err.message || "Algo deu errado!" });
     }
   },
 
@@ -160,8 +204,8 @@ module.exports = {
       mailer.sendMail(
         {
           to: email,
-          subject: "Redefinição de senha",
-          from: "João Couto - iGym <contato@joaocouto.com>",
+          subject: "Redefinição de senha - RF Fitness",
+          from: "João Couto <contato@joaocouto.com>",
           template: "auth/forgot_password",
           context: { token },
         },
